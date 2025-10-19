@@ -3,14 +3,14 @@ import {
   Controller,
   Get,
   Post,
-  Query,
   Headers,
   Req,
   Res,
-  Param
+  Param, Put, Patch, Delete
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import type {Request, Response} from "express";
+import {MovieDto} from "./dto/movie.dto";
 
 @Controller({
   path: 'movie',
@@ -20,32 +20,42 @@ export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
   @Get('all')
-  findAll(@Query('genre') genre: string, @Query() query: any) {
-    return [
-      query,
-      genre,
-      {
-        title: 'test',
-        year: 2020,
-        genres: ['test']
-      },
-      {
-        title: 'test2',
-        year: 2020,
-        genres: ['test2']
-      }
-    ]
+  findAll() {
+    return this.movieService.findAll();
+  }
+
+  @Get(':id')
+  findById(@Param('id') id: string) {
+    return this.movieService.findById(id);
   }
 
 
   @Post('create')
-  create(@Body('title') title: string, @Body('year') year: number, @Body('genres') genres: string[]) {
-    return {
-      title,
-      year,
-      genres,
-    }
+  create(@Body() dto: MovieDto) {
+    return this.movieService.create(dto);
   }
+
+  @Put('update/:id')
+  update(@Param('id') id: string, @Body() dto: MovieDto) {
+    return this.movieService.update(dto, id);
+  }
+
+  @Patch('patch/:id')
+  patch(@Param('id') id: string) {
+    return this.movieService.patchPublic(id);
+  }
+
+  @Delete('remove/:id')
+  remove(@Param('id') id: string) {
+    return this.movieService.remove(id);
+  }
+
+
+
+
+
+
+
 
   @Get('headers')
   getHeaders(@Headers() headers: any) {
@@ -85,9 +95,6 @@ export class MovieController {
       id
     }
   }
-
-
-
 
 
 }
