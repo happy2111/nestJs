@@ -1,27 +1,39 @@
-import {Global, Module} from '@nestjs/common';
+import {
+  Global,
+  type MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MovieModule } from './movie/movie.module';
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {ConfigModule, ConfigService} from "@nestjs/config";
-import {getTypeOrmConfig} from "./config/typeorm.config";
+import {ConfigModule} from "@nestjs/config";
 import { ReviewModule } from './review/review.module';
 import { ActorModule } from './actor/actor.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { LoggingMiddleware} from "./common/logging.middleware";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: getTypeOrmConfig,
-      inject: [ConfigService],
-    }),
+    PrismaModule,
     MovieModule,
     ReviewModule,
-    ActorModule],
+    ActorModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule{
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(LoggingMiddleware).forRoutes('*');
+    // consumer.apply(LoggingMiddleware).forRoutes(AppController);
+    // consumer.apply(LoggingMiddleware).forRoutes({path: '/movies', method: RequestMethod.GET});
+
+
+
+  }
+}

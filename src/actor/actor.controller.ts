@@ -6,11 +6,6 @@ import {CreateActorDto} from "./dto/create-actor.dto";
 export class ActorController {
   constructor(private readonly actorService: ActorService) {}
 
-  @Get()
-  getAll() {
-    return {message: 'Hello World!'}
-  }
-
   @Post('create')
   create(@Body() dto: CreateActorDto) {
     return this.actorService.onCreate(dto);
